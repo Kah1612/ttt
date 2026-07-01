@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TicTacToe Premium</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      background: -webkit-linear-gradient(45deg, #f3ec78, #af4261);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+    #status {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      min-height: 27px;
+      color: #00e5ff;
+      transition: color 0.3s ease;
+    }
+    #error {
+      color: #ff4757;
+      margin-bottom: 15px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 10px;
+      margin: 0 auto 30px;
+      justify-content: center;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    .cell.x {
+      color: #ff4757;
+      text-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+    }
+    .cell.o {
+      color: #2ed573;
+      text-shadow: 0 0 15px rgba(46, 213, 115, 0.5);
+    }
+    button {
+      background: linear-gradient(45deg, #00e5ff, #007bff);
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+    }
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.6);
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Tic-Tac-Toe</h1>
+  <div class="subtitle">You = X &nbsp;|&nbsp; Computer = O</div>
+
+  <div id="status">Press "New Game" to start.</div>
+  <div id="error" style="display:none"></div>
+
+  <div class="board" id="board">
+    <div class="cell" id="c1" onclick="submitPlay(1)"></div>
+    <div class="cell" id="c2" onclick="submitPlay(2)"></div>
+    <div class="cell" id="c3" onclick="submitPlay(3)"></div>
+    <div class="cell" id="c4" onclick="submitPlay(4)"></div>
+    <div class="cell" id="c5" onclick="submitPlay(5)"></div>
+    <div class="cell" id="c6" onclick="submitPlay(6)"></div>
+    <div class="cell" id="c7" onclick="submitPlay(7)"></div>
+    <div class="cell" id="c8" onclick="submitPlay(8)"></div>
+    <div class="cell" id="c9" onclick="submitPlay(9)"></div>
+  </div>
+
+  <button onclick="initSession()">New Game</button>
+</div>
+
+<script>
+  let sessionState = "000000000";
+  let isSessionEnded = false;
+
+  function renderBoard(board) {
+    for (let i = 0; i < 9; i++) {
+      let cell = document.getElementById("c" + (i + 1));
+      let val = board.charAt(i);
+      
+      // Remove classes 
+      cell.classList.remove('x', 'o');
+      
+      if (val === '0') {
+        cell.innerText = "";
+      } else if (val === '1') {
+        cell.innerText = "X";
+        cell.classList.add('x');
+      } else if (val === '2') {
+        cell.innerText = "O";
+        cell.classList.add('o');
+      }
+    }
+  }
+
+  function initSession() {
+    sessionState = "000000000";
+    isSessionEnded = false;
+    renderBoard(sessionState);
+    document.getElementById("status").innerText = "Your turn!";
+    document.getElementById("status").style.color = "#00e5ff";
+    document.getElementById("error").style.display = "none";
+  }
+
+  function submitPlay(cellIndex) {
+    if (isSessionEnded) {
+      document.getElementById("status").innerText = "Press New Game to play again.";
+      return;
+    }
+    if (sessionState.charAt(cellIndex - 1) !== '0') {
+      document.getElementById("status").innerText = "Cell already occupied!";
+      document.getElementById("status").style.color = "#ffa502";
+      setTimeout(() => {
+          if(!isSessionEnded) document.getElementById("status").style.color = "#00e5ff";
+      }, 1000);
+      return;
+    }
+
+    document.getElementById("status").innerText = "Thinking...";
+    document.getElementById("status").style.color = "#ccc";
+
+    fetch("api/quockhanh/play", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        quockhanhBoard: sessionState,
+        quockhanhMove: cellIndex
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      sessionState = data.quockhanhBoard;
+      renderBoard(sessionState);
+
+      let statusElem = document.getElementById("status");
+      if (data.quockhanhStatus === "win") {
+        statusElem.innerText = "You Win! 🎉";
+        statusElem.style.color = "#2ed573";
+        isSessionEnded = true;
+      } else if (data.quockhanhStatus === "lose") {
+        statusElem.innerText = "Computer Wins! 💔";
+        statusElem.style.color = "#ff4757";
+        isSessionEnded = true;
+      } else if (data.quockhanhStatus === "draw") {
+        statusElem.innerText = "It's a Draw! 🤝";
+        statusElem.style.color = "#ffa502";
+        isSessionEnded = true;
+      } else if (data.quockhanhStatus === "ongoing") {
+        statusElem.innerText = "Your turn!";
+        statusElem.style.color = "#00e5ff";
+      } else if (data.quockhanhStatus === "invalid") {
+        statusElem.innerText = "Invalid move, try again.";
+        statusElem.style.color = "#ff4757";
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      let errorElem = document.getElementById("error");
+      errorElem.style.display = "block";
+      errorElem.innerText = "Error communicating with server.";
+      document.getElementById("status").innerText = "Error!";
+      document.getElementById("status").style.color = "#ff4757";
+    });
+  }
+
+  initSession();
+</script>
+</body>
+</html>
