@@ -1,0 +1,63 @@
+# Quoc Khanh's Tic-Tac-Toe Game API Documentation
+
+## Endpoint Information
+- **URL Path:** `/api/quockhanh/play`
+- **HTTP Method:** `POST`
+- **Data Format:** `application/json`
+
+## Functional Overview
+This custom API endpoint is designed to process the player's interactions with the game board. When a human player selects a cell, the client application sends the state of the game. The backend validates this action, registers the move, automatically calculates the smartest counter-move for the AI, and then responds with the newly updated grid and the current stage of the match.
+
+---
+
+### Client Request Payload (JSON)
+
+The backend expects the following structured JSON data to be sent from the client:
+```json
+{
+  "quockhanhBoard": "000000000",   
+  "quockhanhMove": 1               
+}
+```
+**Details:**
+- `quockhanhBoard`: A strict 9-character string representing the state of the grid. 
+  - `0` indicates a blank cell.
+  - `1` represents the human player's mark (X).
+  - `2` represents the AI's mark (O).
+- `quockhanhMove`: An integer strictly between `1` and `9`, corresponding to the cell the user wishes to mark. (1 is top-left, 9 is bottom-right).
+
+---
+
+### Server Response Payload (JSON)
+
+The server will reply with the following JSON structure to confirm the updated state:
+```json
+{
+  "quockhanhStatus": "ongoing",    
+  "quockhanhBoard": "100002000"    
+}
+```
+**Details:**
+- `quockhanhStatus`: Indicates the result of the turn.
+  - `"ongoing"`: Match continues.
+  - `"win"`: The human player successfully completed a line of 3.
+  - `"lose"`: The AI successfully completed a line of 3.
+  - `"draw"`: All cells are filled with no victor.
+  - `"invalid"`: The player attempted to mark a cell that is already taken or out of bounds.
+- `quockhanhBoard`: The updated 9-character string of the grid AFTER the player's move and the AI's counter-move (if applicable) have been placed.
+
+---
+
+### Operational Scenarios
+
+**1. Standard Turn Execution:**
+- **Request:** `{ "quockhanhBoard": "000000000", "quockhanhMove": 1 }`
+- **Response:** `{ "quockhanhStatus": "ongoing", "quockhanhBoard": "100002000" }`
+
+**2. Illegal Action Rejection (Cell Already Taken):**
+- **Request:** `{ "quockhanhBoard": "100002000", "quockhanhMove": 1 }`
+- **Response:** `{ "quockhanhStatus": "invalid", "quockhanhBoard": "100002000" }`
+
+**3. Victory Achievement:**
+- **Request:** `{ "quockhanhBoard": "110220000", "quockhanhMove": 3 }`
+- **Response:** `{ "quockhanhStatus": "win", "quockhanhBoard": "111220000" }`
